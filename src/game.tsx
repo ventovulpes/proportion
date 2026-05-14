@@ -7,26 +7,39 @@ export default function Game() {
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   function createRandomInitialBoxValues() {
-    const newBoxHeight = Math.random() * 600 + 400;
+    const newBoxHeight = Math.random() * 800 + 200;
+    const newBoxWidth = Math.random() * 800 + 200;
+    const isVertical = Math.random() < 0.5;
 
     return {
-      boxWidth: Math.random() * 800 + 200,
+      boxWidth: newBoxWidth,
       boxHeight: newBoxHeight,
-      guessHeight: Math.random() * (newBoxHeight - 10) + 10
+      guess: Math.random() * ((isVertical ? newBoxHeight : newBoxWidth) - 10) + 10,
+      isVertical: isVertical
     };
   }
 
   function createRandomPrompt() {
-    const denominator = Math.floor(Math.random() * 18) + 2;
+    let denominator = Math.floor(Math.random() * 18) + 2;
+    let numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
+
+    // get gcd using Euclidean algorithm
+    const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+
+    // check if fraction can be reduced using gcd. if so, generate new fraction
+    while (gcd(numerator, denominator) > 1) {
+      denominator = Math.floor(Math.random() * 18) + 2;
+      numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
+    }
     return {
-      numerator: Math.floor(Math.random() * (denominator - 1)) + 1,
+      numerator: numerator,
       denominator: denominator
     };
   }
 
   const handleSubmit = () => {
     const goalPercentage = prompt.numerator / prompt.denominator;
-    const guessPercentage = boxValues.guessHeight / boxValues.boxHeight;
+    const guessPercentage = boxValues.guess / (boxValues.isVertical ? boxValues.boxHeight : boxValues.boxWidth);
     console.log(goalPercentage, guessPercentage);
     setHasSubmitted(true);
   };
@@ -87,13 +100,13 @@ function BoxArea({ boxValues, setBoxValues }) {
 function Box({ scalingFactor, boxValues, setBoxValues }) {
   const guessRef = useRef(null);
   const isResizing = useRef(false);
-  const initialYPos = useRef(0);
-  const initialGuess = useRef(boxValues.guessHeight);
+  const initialMousePos = useRef(0);
+  const initialGuess = useRef(boxValues.guess);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     isResizing.current = true;
-    initialYPos.current = e.clientY;
-    initialGuess.current = boxValues.guessHeight;
+    initialMousePos.current = boxValues.isVertical ? e.clientY : e.clientX;
+    initialGuess.current = boxValues.guess;
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
@@ -101,10 +114,17 @@ function Box({ scalingFactor, boxValues, setBoxValues }) {
 
   const handleMouseMove = (e: MouseEvent) => {
     if (isResizing.current) {
-      const newGuessHeight = initialGuess.current + (initialYPos.current - e.clientY) / scalingFactor;
+      const curMousePos = boxValues.isVertical ? e.clientY : e.clientX;
+      const deltaMousePos = boxValues.isVertical
+        ? initialMousePos.current - curMousePos
+        : curMousePos - initialMousePos.current;
+
+      const newGuess = initialGuess.current + deltaMousePos / scalingFactor;
+      const minGuess = 0;
+      const maxGuess = boxValues.isVertical ? boxValues.boxHeight : boxValues.boxWidth;
       setBoxValues(prev => ({
         ...prev,
-        guessHeight: Math.min(Math.max(10, newGuessHeight), 990)
+        guess: Math.min(Math.max(minGuess, newGuess), maxGuess)
       }));
     }
   };
@@ -119,18 +139,22 @@ function Box({ scalingFactor, boxValues, setBoxValues }) {
   return (
     <div
       className="box"
+      onMouseDown={handleMouseDown}
       style={{
         width: boxValues.boxWidth * scalingFactor,
-        height: boxValues.boxHeight * scalingFactor
+        height: boxValues.boxHeight * scalingFactor,
+        flexDirection: boxValues.isVertical ? "column" : "row",
+        justifyContent: boxValues.isVertical ? "end" : "start"
       }}
     >
       <div
         className="guess-box"
         ref={guessRef}
-        onMouseDown={handleMouseDown}
         style={{
-          width: '100%',
-          height: boxValues.guessHeight * scalingFactor
+          width: boxValues.isVertical ? '100%' : boxValues.guess * scalingFactor,
+          height: boxValues.isVertical ? boxValues.guess * scalingFactor : '100%',
+          borderTop: boxValues.isVertical ? '2px solid #282828' : undefined,
+          borderRight: boxValues.isVertical ? undefined : '2px solid #282828'
         }}
       ></div>
     </div>
