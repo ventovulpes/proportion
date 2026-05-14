@@ -26,10 +26,10 @@
 
 .fraction-top {
     margin: 0;
-    border-bottom: 2px solid black
 }
 
 .fraction-bottom {
+    border-top: 2px solid black;
     margin: 0;
 }
 
@@ -44,4 +44,12 @@
 
 .box {
     border: 3px solid black;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+}
+
+.guess-box {
+    border-top: 3px solid black;
+    background-color: #a1a1a18f;
 }
