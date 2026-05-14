@@ -25,7 +25,7 @@ export default function Game() {
     let numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
 
     // get gcd using Euclidean algorithm
-    const gcd = (a: number, b: number) => b === 0 ? a : gcd(b, a % b);
+    const gcd = (a: number, b: number): number => b === 0 ? a : gcd(b, a % b);
 
     // check if fraction can be reduced using gcd. if so, generate new fraction
     while (gcd(numerator, denominator) > 1) {
@@ -65,7 +65,23 @@ export default function Game() {
   );
 }
 
-function Fraction({ prompt }) {
+type BoxValues = {
+  boxWidth: number,
+  boxHeight: number,
+  guess: number,
+  isVertical: boolean,
+  guessPercentage: number
+}
+
+type FractionProps = {
+  prompt: {
+    numerator: number,
+    denominator: number,
+    percentage: number
+  }
+}
+
+function Fraction({ prompt }: FractionProps) {
   return (
     <div className="fraction">
       <p className="fraction-top">{ prompt.numerator }</p>
@@ -74,7 +90,13 @@ function Fraction({ prompt }) {
   );
 }
 
-function Result({ answerPercentage, guessPercentage, hasSubmitted }) {
+type ResultProps = {
+  answerPercentage: number,
+  guessPercentage: number,
+  hasSubmitted: boolean
+}
+
+function Result({ answerPercentage, guessPercentage, hasSubmitted }: ResultProps) {
   const result = `${guessPercentage - answerPercentage > 0 ? '+' : '-'} ${(Math.abs(guessPercentage - answerPercentage) * 100).toFixed(2)}%`
   return (
     <div className="result">
@@ -83,16 +105,25 @@ function Result({ answerPercentage, guessPercentage, hasSubmitted }) {
   )
 }
 
-function BoxArea({ boxValues, setBoxValues, answerPercentage, hasSubmitted }) {
+type BoxAreaProps = {
+  boxValues: BoxValues,
+  setBoxValues: React.Dispatch<React.SetStateAction<BoxValues>>,
+  answerPercentage: number,
+  hasSubmitted: boolean
+}
+
+function BoxArea({ boxValues, setBoxValues, answerPercentage, hasSubmitted }: BoxAreaProps) {
   const [scalingFactor, setScalingFactor] = useState(1);
-  const boxAreaRef = useRef(null);
+  const boxAreaRef = useRef<HTMLDivElement | null>(null);
 
   // change game scaling depending on window size
   useEffect(() => {
     const handleResize = () => {
+      if (!boxAreaRef.current) return;
+
       const boxAreaSize = {
-        x: boxAreaRef.current.getBoundingClientRect().width,
-        y: boxAreaRef.current.getBoundingClientRect().height
+        x: boxAreaRef.current.getBoundingClientRect().width ?? 0,
+        y: boxAreaRef.current.getBoundingClientRect().height ?? 0
       }
       setScalingFactor(Math.min(boxAreaSize.x / GAME_DIMENSIONS.x, boxAreaSize.y / GAME_DIMENSIONS.y));
     };
@@ -112,7 +143,15 @@ function BoxArea({ boxValues, setBoxValues, answerPercentage, hasSubmitted }) {
   );
 }
 
-function Box({ scalingFactor, boxValues, setBoxValues, answerPercentage, hasSubmitted }) {
+type BoxProps = {
+  scalingFactor: number,
+  boxValues: BoxValues,
+  setBoxValues: React.Dispatch<React.SetStateAction<BoxValues>>,
+  answerPercentage: number,
+  hasSubmitted: boolean
+}
+
+function Box({ scalingFactor, boxValues, setBoxValues, answerPercentage, hasSubmitted }: BoxProps) {
   const guessRef = useRef(null);
   const isResizing = useRef(false);
   const initialMousePos = useRef(0);
@@ -182,7 +221,12 @@ function Box({ scalingFactor, boxValues, setBoxValues, answerPercentage, hasSubm
   );
 }
 
-function Button({ onClick, hasSubmitted }) {
+type ButtonProps = {
+  onClick: React.MouseEventHandler<HTMLButtonElement>,
+  hasSubmitted: boolean
+}
+
+function Button({ onClick, hasSubmitted }: ButtonProps) {
   return (
     <button onClick={onClick}>{hasSubmitted ? "next" : "submit"}</button>
   );
