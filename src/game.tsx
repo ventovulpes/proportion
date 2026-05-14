@@ -212,8 +212,8 @@ function Box({ scalingFactor, boxValues, setBoxValues, answerPercentage, hasSubm
       <div
         className="answer-box"
         style={{
-          width: boxValues.isVertical ? "100%" : `${answerPercentage * 100}%`,
-          height: boxValues.isVertical ? `${answerPercentage * 100}%` : "100%",
+          width: hasSubmitted ? (boxValues.isVertical ? "100%" : `${answerPercentage * 100}%`) : 0,
+          height: hasSubmitted ? (boxValues.isVertical ? `${answerPercentage * 100}%` : "100%") : 0,
           backgroundColor: hasSubmitted ? (boxValues.guessPercentage > answerPercentage ? 'rgba(255, 34, 0, 0.5)' : 'rgba(32, 220, 82, 0.5)') : undefined
         }}
       ></div>

@@ -13,7 +13,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    padding: clamp(4px, 10vh, 200px) 0px;
+    padding-top: clamp(4px, 5vh, 200px);
+    padding-bottom: clamp(10px, 10vh, 200px);
     gap: 30px;
 }
 
