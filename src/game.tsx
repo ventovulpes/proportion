@@ -154,28 +154,28 @@ type BoxProps = {
 function Box({ scalingFactor, boxValues, setBoxValues, answerPercentage, hasSubmitted }: BoxProps) {
   const guessRef = useRef(null);
   const isResizing = useRef(false);
-  const initialMousePos = useRef(0);
+  const initialPointerPos = useRef(0);
   const initialGuess = useRef(boxValues.guess);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handlePointerDown = (e: React.PointerEvent) => {
     if (!hasSubmitted) {
       isResizing.current = true;
-      initialMousePos.current = boxValues.isVertical ? e.clientY : e.clientX;
+      initialPointerPos.current = boxValues.isVertical ? e.clientY : e.clientX;
       initialGuess.current = boxValues.guess;
 
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener("pointermove", handlePointerMove);
+      document.addEventListener("pointerup", handlePointerUp);
     }
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handlePointerMove = (e: PointerEvent) => {
     if (isResizing.current) {
-      const curMousePos = boxValues.isVertical ? e.clientY : e.clientX;
-      const deltaMousePos = boxValues.isVertical
-        ? initialMousePos.current - curMousePos
-        : curMousePos - initialMousePos.current;
+      const curPointerPos = boxValues.isVertical ? e.clientY : e.clientX;
+      const deltaPointerPos = boxValues.isVertical
+        ? initialPointerPos.current - curPointerPos
+        : curPointerPos - initialPointerPos.current;
 
-      const newGuess = initialGuess.current + deltaMousePos / scalingFactor;
+      const newGuess = initialGuess.current + deltaPointerPos / scalingFactor;
       const minGuess = 0;
       const maxGuess = boxValues.isVertical ? boxValues.boxHeight : boxValues.boxWidth;
       setBoxValues(prev => ({
@@ -185,17 +185,17 @@ function Box({ scalingFactor, boxValues, setBoxValues, answerPercentage, hasSubm
     }
   };
 
-  const handleMouseUp = () => {
+  const handlePointerUp = () => {
     isResizing.current = false;
 
-    document.removeEventListener("mousemove", handleMouseMove);
-    document.removeEventListener("mouseup", handleMouseUp);
+    document.removeEventListener("pointermove", handlePointerMove);
+    document.removeEventListener("pointerup", handlePointerUp);
   };
 
   return (
     <div
       className="box"
-      onMouseDown={handleMouseDown}
+      onPointerDown={handlePointerDown}
       style={{
         width: boxValues.boxWidth * scalingFactor,
         height: boxValues.boxHeight * scalingFactor
@@ -222,7 +222,7 @@ function Box({ scalingFactor, boxValues, setBoxValues, answerPercentage, hasSubm
 }
 
 type ButtonProps = {
-  onClick: React.MouseEventHandler<HTMLButtonElement>,
+  onClick: React.PointerEventHandler<HTMLButtonElement>,
   hasSubmitted: boolean
 }
 
