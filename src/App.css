@@ -14,7 +14,7 @@
     align-items: center;
     justify-content: space-between;
     padding: clamp(4px, 10vh, 200px) 0px;
-    gap: 50px;
+    gap: 30px;
 }
 
 .fraction {
@@ -33,6 +33,12 @@
     margin: 0;
 }
 
+.result {
+    flex: 0 0 auto;
+    font-weight: bold;
+    min-height: 1.5em;
+}
+
 .box-area {
     width: 100%;
     flex: 1 1 0;
@@ -44,11 +50,18 @@
 
 .box {
     border: 3px solid black;
-    display: flex;
-    flex-direction: column;
-    justify-content: end;
+    position: relative;
+    overflow: hidden;
+    box-sizing: content-box;
 }
 
 .guess-box {
-    background-color: #a1a1a18f;
+    background-color: #878787;
+    position: absolute;
+    bottom: 0px;
+}
+
+.answer-box {
+    position: absolute;
+    bottom: 0px;
 }

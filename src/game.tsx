@@ -15,7 +15,8 @@ export default function Game() {
       boxWidth: newBoxWidth,
       boxHeight: newBoxHeight,
       guess: Math.random() * ((isVertical ? newBoxHeight : newBoxWidth) - 10) + 10,
-      isVertical: isVertical
+      isVertical: isVertical,
+      guessPercentage: 0
     };
   }
 
@@ -24,7 +25,7 @@ export default function Game() {
     let numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
 
     // get gcd using Euclidean algorithm
-    const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+    const gcd = (a: number, b: number) => b === 0 ? a : gcd(b, a % b);
 
     // check if fraction can be reduced using gcd. if so, generate new fraction
     while (gcd(numerator, denominator) > 1) {
@@ -33,14 +34,18 @@ export default function Game() {
     }
     return {
       numerator: numerator,
-      denominator: denominator
+      denominator: denominator,
+      percentage: numerator / denominator
     };
   }
 
   const handleSubmit = () => {
-    const goalPercentage = prompt.numerator / prompt.denominator;
-    const guessPercentage = boxValues.guess / (boxValues.isVertical ? boxValues.boxHeight : boxValues.boxWidth);
-    console.log(goalPercentage, guessPercentage);
+    const newGuessPercentage = boxValues.guess / (boxValues.isVertical ? boxValues.boxHeight : boxValues.boxWidth);
+    setBoxValues(prev => ({
+      ...prev,
+      guessPercentage: newGuessPercentage
+    }));
+    console.log(prompt.percentage, newGuessPercentage);
     setHasSubmitted(true);
   };
 
@@ -51,9 +56,10 @@ export default function Game() {
   }
 
   return (
-    <div className='game'>
+    <div className="game">
       <Fraction prompt={prompt} />
-      <BoxArea boxValues={boxValues} setBoxValues={setBoxValues} />
+      <Result answerPercentage={prompt.percentage} guessPercentage={boxValues.guessPercentage} hasSubmitted={hasSubmitted} />
+      <BoxArea boxValues={boxValues} setBoxValues={setBoxValues} answerPercentage={prompt.percentage} hasSubmitted={hasSubmitted} />
       <Button onClick={hasSubmitted ? handleNext : handleSubmit} hasSubmitted={hasSubmitted} />
     </div>
   );
@@ -61,14 +67,23 @@ export default function Game() {
 
 function Fraction({ prompt }) {
   return (
-    <div className='fraction'>
-      <p className='fraction-top'>{ prompt.numerator }</p>
-      <p className='fraction-bottom'>{ prompt.denominator }</p>
+    <div className="fraction">
+      <p className="fraction-top">{ prompt.numerator }</p>
+      <p className="fraction-bottom">{ prompt.denominator }</p>
     </div>
   );
 }
 
-function BoxArea({ boxValues, setBoxValues }) {
+function Result({ answerPercentage, guessPercentage, hasSubmitted }) {
+  const result = `${guessPercentage - answerPercentage > 0 ? '+' : '-'} ${(Math.abs(guessPercentage - answerPercentage) * 100).toFixed(2)}%`
+  return (
+    <div className="result">
+      {hasSubmitted ? result : ""}
+    </div>
+  )
+}
+
+function BoxArea({ boxValues, setBoxValues, answerPercentage, hasSubmitted }) {
   const [scalingFactor, setScalingFactor] = useState(1);
   const boxAreaRef = useRef(null);
 
@@ -83,33 +98,35 @@ function BoxArea({ boxValues, setBoxValues }) {
     };
     handleResize();
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   });
 
   return (
-    <div className='box-area' ref={boxAreaRef}>
-      <Box scalingFactor={scalingFactor} boxValues={boxValues} setBoxValues={setBoxValues} />
+    <div className="box-area" ref={boxAreaRef}>
+      <Box scalingFactor={scalingFactor} boxValues={boxValues} setBoxValues={setBoxValues} answerPercentage={answerPercentage} hasSubmitted={hasSubmitted} />
     </div>
   );
 }
 
-function Box({ scalingFactor, boxValues, setBoxValues }) {
+function Box({ scalingFactor, boxValues, setBoxValues, answerPercentage, hasSubmitted }) {
   const guessRef = useRef(null);
   const isResizing = useRef(false);
   const initialMousePos = useRef(0);
   const initialGuess = useRef(boxValues.guess);
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    isResizing.current = true;
-    initialMousePos.current = boxValues.isVertical ? e.clientY : e.clientX;
-    initialGuess.current = boxValues.guess;
+    if (!hasSubmitted) {
+      isResizing.current = true;
+      initialMousePos.current = boxValues.isVertical ? e.clientY : e.clientX;
+      initialGuess.current = boxValues.guess;
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+    }
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -132,8 +149,8 @@ function Box({ scalingFactor, boxValues, setBoxValues }) {
   const handleMouseUp = () => {
     isResizing.current = false;
 
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("mouseup", handleMouseUp);
   };
 
   return (
@@ -142,19 +159,23 @@ function Box({ scalingFactor, boxValues, setBoxValues }) {
       onMouseDown={handleMouseDown}
       style={{
         width: boxValues.boxWidth * scalingFactor,
-        height: boxValues.boxHeight * scalingFactor,
-        flexDirection: boxValues.isVertical ? "column" : "row",
-        justifyContent: boxValues.isVertical ? "end" : "start"
+        height: boxValues.boxHeight * scalingFactor
       }}
     >
       <div
         className="guess-box"
         ref={guessRef}
         style={{
-          width: boxValues.isVertical ? '100%' : boxValues.guess * scalingFactor,
-          height: boxValues.isVertical ? boxValues.guess * scalingFactor : '100%',
-          borderTop: boxValues.isVertical ? '2px solid #282828' : undefined,
-          borderRight: boxValues.isVertical ? undefined : '2px solid #282828'
+          width: boxValues.isVertical ? "100%" : boxValues.guess * scalingFactor,
+          height: boxValues.isVertical ? boxValues.guess * scalingFactor : "100%"
+        }}
+      ></div>
+      <div
+        className="answer-box"
+        style={{
+          width: boxValues.isVertical ? "100%" : `${answerPercentage * 100}%`,
+          height: boxValues.isVertical ? `${answerPercentage * 100}%` : "100%",
+          backgroundColor: hasSubmitted ? (boxValues.guessPercentage > answerPercentage ? 'rgba(255, 34, 0, 0.5)' : 'rgba(32, 220, 82, 0.5)') : undefined
         }}
       ></div>
     </div>
@@ -163,6 +184,6 @@ function Box({ scalingFactor, boxValues, setBoxValues }) {
 
 function Button({ onClick, hasSubmitted }) {
   return (
-    <button onClick={onClick}>{hasSubmitted ? 'next' : 'submit'}</button>
+    <button onClick={onClick}>{hasSubmitted ? "next" : "submit"}</button>
   );
 }
