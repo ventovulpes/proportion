@@ -14,8 +14,7 @@
     align-items: center;
     justify-content: space-between;
     padding-top: clamp(4px, 5vh, 200px);
-    padding-bottom: clamp(10px, 10vh, 200px);
-    gap: 30px;
+    padding-bottom: clamp(15px, 10vh, 200px);
 }
 
 .fraction {
