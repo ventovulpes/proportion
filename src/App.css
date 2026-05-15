@@ -15,6 +15,7 @@
     justify-content: space-between;
     padding-top: clamp(4px, 5vh, 200px);
     padding-bottom: clamp(15px, 10vh, 200px);
+    gap: 4px;
 }
 
 .fraction {
@@ -39,7 +40,7 @@
     min-height: 1.5em;
 }
 
-.box-area {
+.shape-area {
     width: 100%;
     flex: 1 1 0;
     min-height: 0;
@@ -48,20 +49,20 @@
     align-items: center;
 }
 
-.box {
+.shape {
     border: 3px solid black;
     position: relative;
     overflow: hidden;
     box-sizing: content-box;
 }
 
-.guess-box {
+.guess-fill {
     background-color: #878787;
     position: absolute;
     bottom: 0px;
 }
 
-.answer-box {
+.answer-fill {
     position: absolute;
     bottom: 0px;
 }

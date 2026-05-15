@@ -1,23 +1,16 @@
 import { useEffect, useState, useRef } from "react"
+import { type Shape, createRectangle, getShapeStyle, getGuessPercentage, getAnswerFillStyle } from "./shapes";
 const GAME_DIMENSIONS = { x: 1000, y: 1000 }
 
 export default function Game() {
-  const [boxValues, setBoxValues] = useState(createRandomInitialBoxValues);
+  const SHAPE_GENERATORS = [createRectangle];
+  const [shape, setShapeValues] = useState<Shape>(createRandomInitialShapeValues);
   const [prompt, setPrompt] = useState(createRandomPrompt);
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
-  function createRandomInitialBoxValues() {
-    const newBoxHeight = Math.random() * 800 + 200;
-    const newBoxWidth = Math.random() * 800 + 200;
-    const isVertical = Math.random() < 0.5;
-
-    return {
-      boxWidth: newBoxWidth,
-      boxHeight: newBoxHeight,
-      guess: Math.random() * ((isVertical ? newBoxHeight : newBoxWidth) - 10) + 10,
-      isVertical: isVertical,
-      guessPercentage: 0
-    };
+  function createRandomInitialShapeValues() {
+    const randomShapeGenerator = SHAPE_GENERATORS[Math.floor(Math.random() * SHAPE_GENERATORS.length)];
+    return randomShapeGenerator();
   }
 
   function createRandomPrompt() {
@@ -40,17 +33,16 @@ export default function Game() {
   }
 
   const handleSubmit = () => {
-    const newGuessPercentage = boxValues.guess / (boxValues.isVertical ? boxValues.boxHeight : boxValues.boxWidth);
-    setBoxValues(prev => ({
+    const newGuessPercentage = getGuessPercentage(shape);
+    setShapeValues(prev => ({
       ...prev,
       guessPercentage: newGuessPercentage
     }));
-    console.log(prompt.percentage, newGuessPercentage);
     setHasSubmitted(true);
   };
 
   const handleNext = () => {
-    setBoxValues(createRandomInitialBoxValues);
+    setShapeValues(createRandomInitialShapeValues);
     setPrompt(createRandomPrompt);
     setHasSubmitted(false);
   }
@@ -58,19 +50,11 @@ export default function Game() {
   return (
     <div className="game">
       <Fraction prompt={prompt} />
-      <Result answerPercentage={prompt.percentage} guessPercentage={boxValues.guessPercentage} hasSubmitted={hasSubmitted} />
-      <BoxArea boxValues={boxValues} setBoxValues={setBoxValues} answerPercentage={prompt.percentage} hasSubmitted={hasSubmitted} />
+      <Result answerPercentage={prompt.percentage} guessPercentage={shape.guessPercentage} hasSubmitted={hasSubmitted} />
+      <ShapeArea shape={shape} setShapeValues={setShapeValues} answerPercentage={prompt.percentage} hasSubmitted={hasSubmitted} />
       <Button onClick={hasSubmitted ? handleNext : handleSubmit} hasSubmitted={hasSubmitted} />
     </div>
   );
-}
-
-type BoxValues = {
-  boxWidth: number,
-  boxHeight: number,
-  guess: number,
-  isVertical: boolean,
-  guessPercentage: number
 }
 
 type FractionProps = {
@@ -105,27 +89,27 @@ function Result({ answerPercentage, guessPercentage, hasSubmitted }: ResultProps
   )
 }
 
-type BoxAreaProps = {
-  boxValues: BoxValues,
-  setBoxValues: React.Dispatch<React.SetStateAction<BoxValues>>,
+type ShapeAreaProps = {
+  shape: Shape,
+  setShapeValues: React.Dispatch<React.SetStateAction<Shape>>,
   answerPercentage: number,
   hasSubmitted: boolean
 }
 
-function BoxArea({ boxValues, setBoxValues, answerPercentage, hasSubmitted }: BoxAreaProps) {
+function ShapeArea({ shape, setShapeValues, answerPercentage, hasSubmitted }: ShapeAreaProps) {
   const [scalingFactor, setScalingFactor] = useState(1);
-  const boxAreaRef = useRef<HTMLDivElement | null>(null);
+  const shapeAreaRef = useRef<HTMLDivElement | null>(null);
 
   // change game scaling depending on window size
   useEffect(() => {
     const handleResize = () => {
-      if (!boxAreaRef.current) return;
+      if (!shapeAreaRef.current) return;
 
-      const boxAreaSize = {
-        x: boxAreaRef.current.getBoundingClientRect().width ?? 0,
-        y: boxAreaRef.current.getBoundingClientRect().height ?? 0
+      const shapeAreaSize = {
+        x: shapeAreaRef.current.getBoundingClientRect().width ?? 0,
+        y: shapeAreaRef.current.getBoundingClientRect().height ?? 0
       }
-      setScalingFactor(Math.min(boxAreaSize.x / GAME_DIMENSIONS.x, boxAreaSize.y / GAME_DIMENSIONS.y));
+      setScalingFactor(Math.min(shapeAreaSize.x / GAME_DIMENSIONS.x, shapeAreaSize.y / GAME_DIMENSIONS.y));
     };
     handleResize();
 
@@ -137,31 +121,31 @@ function BoxArea({ boxValues, setBoxValues, answerPercentage, hasSubmitted }: Bo
   });
 
   return (
-    <div className="box-area" ref={boxAreaRef}>
-      <Box scalingFactor={scalingFactor} boxValues={boxValues} setBoxValues={setBoxValues} answerPercentage={answerPercentage} hasSubmitted={hasSubmitted} />
+    <div className="shape-area" ref={shapeAreaRef}>
+      <Shape scalingFactor={scalingFactor} shape={shape} setShapeValues={setShapeValues} answerPercentage={answerPercentage} hasSubmitted={hasSubmitted} />
     </div>
   );
 }
 
-type BoxProps = {
+type ShapeProps = {
   scalingFactor: number,
-  boxValues: BoxValues,
-  setBoxValues: React.Dispatch<React.SetStateAction<BoxValues>>,
+  shape: Shape,
+  setShapeValues: React.Dispatch<React.SetStateAction<Shape>>,
   answerPercentage: number,
   hasSubmitted: boolean
 }
 
-function Box({ scalingFactor, boxValues, setBoxValues, answerPercentage, hasSubmitted }: BoxProps) {
+function Shape({ scalingFactor, shape, setShapeValues, answerPercentage, hasSubmitted }: ShapeProps) {
   const guessRef = useRef(null);
   const isResizing = useRef(false);
   const initialPointerPos = useRef(0);
-  const initialGuess = useRef(boxValues.guess);
+  const initialGuess = useRef(shape.guess);
 
   const handlePointerDown = (e: React.PointerEvent) => {
     if (!hasSubmitted) {
       isResizing.current = true;
-      initialPointerPos.current = boxValues.isVertical ? e.clientY : e.clientX;
-      initialGuess.current = boxValues.guess;
+      initialPointerPos.current = shape.isVertical ? e.clientY : e.clientX;
+      initialGuess.current = shape.guess;
 
       document.addEventListener("pointermove", handlePointerMove);
       document.addEventListener("pointerup", handlePointerUp);
@@ -170,17 +154,15 @@ function Box({ scalingFactor, boxValues, setBoxValues, answerPercentage, hasSubm
 
   const handlePointerMove = (e: PointerEvent) => {
     if (isResizing.current) {
-      const curPointerPos = boxValues.isVertical ? e.clientY : e.clientX;
-      const deltaPointerPos = boxValues.isVertical
+      const curPointerPos = shape.isVertical ? e.clientY : e.clientX;
+      const deltaPointerPos = shape.isVertical
         ? initialPointerPos.current - curPointerPos
         : curPointerPos - initialPointerPos.current;
 
       const newGuess = initialGuess.current + deltaPointerPos / scalingFactor;
-      const minGuess = 0;
-      const maxGuess = boxValues.isVertical ? boxValues.boxHeight : boxValues.boxWidth;
-      setBoxValues(prev => ({
+      setShapeValues(prev => ({
         ...prev,
-        guess: Math.min(Math.max(minGuess, newGuess), maxGuess)
+        guess: Math.min(Math.max(prev.minGuess, newGuess), prev.maxGuess)
       }));
     }
   };
@@ -194,27 +176,23 @@ function Box({ scalingFactor, boxValues, setBoxValues, answerPercentage, hasSubm
 
   return (
     <div
-      className="box"
-      onPointerDown={handlePointerDown}
-      style={{
-        width: boxValues.boxWidth * scalingFactor,
-        height: boxValues.boxHeight * scalingFactor
-      }}
+      className="shape"
+      onPointerDown={ handlePointerDown }
+      style={ getShapeStyle(shape, scalingFactor) }
     >
       <div
-        className="guess-box"
+        className="guess-fill"
         ref={guessRef}
         style={{
-          width: boxValues.isVertical ? "100%" : boxValues.guess * scalingFactor,
-          height: boxValues.isVertical ? boxValues.guess * scalingFactor : "100%"
+          width: shape.isVertical ? "100%" : shape.guess * scalingFactor,
+          height: shape.isVertical ? shape.guess * scalingFactor : "100%"
         }}
       ></div>
       <div
-        className="answer-box"
+        className="answer-fill"
         style={{
-          width: hasSubmitted ? (boxValues.isVertical ? "100%" : `${answerPercentage * 100}%`) : 0,
-          height: hasSubmitted ? (boxValues.isVertical ? `${answerPercentage * 100}%` : "100%") : 0,
-          backgroundColor: hasSubmitted ? (boxValues.guessPercentage > answerPercentage ? 'rgba(255, 34, 0, 0.5)' : 'rgba(32, 220, 82, 0.5)') : undefined
+          ...(hasSubmitted ? getAnswerFillStyle(shape, answerPercentage) : ''),
+          backgroundColor: hasSubmitted ? (shape.guessPercentage > answerPercentage ? 'rgba(255, 34, 0, 0.5)' : 'rgba(32, 220, 82, 0.5)') : undefined
         }}
       ></div>
     </div>
