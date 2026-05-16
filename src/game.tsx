@@ -28,7 +28,7 @@ export default function Game() {
     return {
       numerator: numerator,
       denominator: denominator,
-      percentage: numerator / denominator
+      percentage: Math.round((numerator / denominator) * 1000) / 1000
     };
   }
 
@@ -81,7 +81,7 @@ type ResultProps = {
 }
 
 function Result({ answerPercentage, guessPercentage, hasSubmitted }: ResultProps) {
-  const result = `${guessPercentage - answerPercentage > 0 ? '+' : '-'} ${(Math.abs(guessPercentage - answerPercentage) * 100).toFixed(2)}%`
+  const result = `${guessPercentage - answerPercentage >= 0 ? '+' : '-'} ${(Math.abs(guessPercentage - answerPercentage) * 100).toFixed(1)}%`
   return (
     <div className="result">
       {hasSubmitted ? result : ""}
@@ -192,7 +192,9 @@ function Shape({ scalingFactor, shape, setShapeValues, answerPercentage, hasSubm
         className="answer-fill"
         style={{
           ...(hasSubmitted ? getAnswerFillStyle(shape, answerPercentage) : ''),
-          backgroundColor: hasSubmitted ? (shape.guessPercentage > answerPercentage ? 'rgba(255, 34, 0, 0.5)' : 'rgba(32, 220, 82, 0.5)') : undefined
+          backgroundColor: (hasSubmitted && Math.abs(shape.guessPercentage - answerPercentage) >= 0.001)
+            ? (shape.guessPercentage > answerPercentage ? 'rgba(255, 34, 0, 0.5)' : 'rgba(32, 220, 82, 0.5)')
+            : undefined
         }}
       ></div>
     </div>

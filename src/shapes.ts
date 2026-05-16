@@ -16,8 +16,8 @@ type Shape = Rectangle;
 
 function createRectangle(): Rectangle {
   const isVertical = Math.random() < 0.5;
-  const width = Math.random() * 800 + 200;
-  const height = Math.random() * 800 + 200;
+  const width = Math.round(Math.random() * 800 + 200);
+  const height = Math.round(Math.random() * 800 + 200);
 
   return {
     type: "rectangle",
@@ -60,7 +60,7 @@ function getShapeStyle(shape: Shape, scalingFactor: number): React.CSSProperties
 }
 
 function getGuessPercentage(shape: Shape): number {
-  return getShapeAreaToLine(shape, shape.guess) / getTotalShapeArea(shape);
+  return Math.round((getShapeAreaToLine(shape, shape.guess) / getTotalShapeArea(shape)) * 1000) / 1000;
 }
 
 function getAnswerFillStyle(shape: Shape, percentage: number): React.CSSProperties {
