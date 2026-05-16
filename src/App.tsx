@@ -6,13 +6,18 @@ export default function App() {
   const [isInDarkMode, setIsInDarkMode] = useState(false);
 
   const toggleDarkMode = () => {
-    setIsInDarkMode(d => !d);
+    setIsInDarkMode(d => {
+      const next = !d;
+      document.documentElement.dataset.theme = next ? "dark" : "light";
+      return next;
+    });
   }
 
   useEffect(() => {
-    const metaThemeColor = document.querySelector("meta[name='bg-color']");
+    const metaThemeColor = document.querySelector("meta[name='theme-color']");
 
     if (metaThemeColor) {
+      console.log("change")
       metaThemeColor.setAttribute(
         "content",
         isInDarkMode ? "#1E1E1E" : "#f8f8f2"
@@ -21,7 +26,7 @@ export default function App() {
   }, [isInDarkMode]);
 
   return (
-    <div className={isInDarkMode ? "app dark" : "app"}>
+    <div className="app">
       <Header isInDarkMode={isInDarkMode} toggleDarkMode={toggleDarkMode} />
       <Game />
    </div>

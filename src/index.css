@@ -13,17 +13,16 @@
     --shadow: black;
 }
 
-.dark {
+:root[data-theme="dark"] {
     --bg: #1E1E1E;
-    --text: white;
+    --text: #f8f8f2;
     --fill: #53535b;
     --highlight: black;
     --shadow: black;
 }
 
-html,
-body {
-  background-color: var(--bg);
+html {
+    background-color: var(--bg);
 }
 
 body {
@@ -53,6 +52,7 @@ h1 {
     all: unset;
     font-size: clamp(1rem, 6vh, 2.5rem);
     aspect-ratio: 1;
+    min-width: 1em;
     text-align: center;
 }
 
