@@ -50,6 +50,7 @@ export default function Game() {
 
   const handleGameScreenClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (hasSubmitted) return;
+    if (!gameScreenRef.current) return;
 
     let newGuess = shape.guess;
 
