@@ -7,6 +7,7 @@ export default function Game() {
   const [shape, setShapeValues] = useState<Shape>(createRandomInitialShapeValues);
   const [prompt, setPrompt] = useState(createRandomPrompt);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const gameScreenRef = useRef<null | HTMLDivElement>(null);
 
   function createRandomInitialShapeValues() {
     const randomShapeGenerator = SHAPE_GENERATORS[Math.floor(Math.random() * SHAPE_GENERATORS.length)];
@@ -47,11 +48,37 @@ export default function Game() {
     setHasSubmitted(false);
   }
 
+  const handleGameScreenClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (hasSubmitted) return;
+
+    let newGuess = shape.guess;
+
+    // change guess by 0.1% of height/width (smallest possible increment)
+    if (shape.isVertical) {
+      if (e.clientY < (gameScreenRef.current.getBoundingClientRect().height / 2) + gameScreenRef.current.getBoundingClientRect().top) {
+        newGuess += 0.001 * shape.height;
+      } else {
+        newGuess -= 0.001 * shape.height;
+      }
+    } else {
+      if (e.clientX > gameScreenRef.current.getBoundingClientRect().width / 2) {
+        newGuess += 0.001 * shape.width;
+      } else {
+        newGuess -= 0.001 * shape.width;
+      }
+    }
+
+    setShapeValues(prev => ({
+      ...prev,
+      guess: Math.min(Math.max(prev.minGuess, newGuess), prev.maxGuess)
+    }));
+  }
+
   return (
-    <div className="game">
+    <div className="game" onClick={handleGameScreenClick} ref={gameScreenRef}>
       <Fraction prompt={prompt} />
       <Result answerPercentage={prompt.percentage} guessPercentage={shape.guessPercentage} hasSubmitted={hasSubmitted} />
-      <ShapeArea shape={shape} setShapeValues={setShapeValues} answerPercentage={prompt.percentage} hasSubmitted={hasSubmitted} />
+      <ShapeArea shape={shape} setShapeValues={setShapeValues} answerPercentage={prompt.percentage} hasSubmitted={hasSubmitted}/>
       <Button onClick={hasSubmitted ? handleNext : handleSubmit} hasSubmitted={hasSubmitted} />
     </div>
   );
@@ -136,10 +163,17 @@ type ShapeProps = {
 }
 
 function Shape({ scalingFactor, shape, setShapeValues, answerPercentage, hasSubmitted }: ShapeProps) {
-  const guessRef = useRef(null);
+  const guessBoxRef = useRef(null);
   const isResizing = useRef(false);
   const initialPointerPos = useRef(0);
   const initialGuess = useRef(shape.guess);
+
+  const updateGuess = (newGuess: number) => {
+    setShapeValues(prev => ({
+      ...prev,
+      guess: Math.min(Math.max(prev.minGuess, newGuess), prev.maxGuess)
+    }));
+  }
 
   const handlePointerDown = (e: React.PointerEvent) => {
     if (!hasSubmitted) {
@@ -159,11 +193,7 @@ function Shape({ scalingFactor, shape, setShapeValues, answerPercentage, hasSubm
         ? initialPointerPos.current - curPointerPos
         : curPointerPos - initialPointerPos.current;
 
-      const newGuess = initialGuess.current + deltaPointerPos / scalingFactor;
-      setShapeValues(prev => ({
-        ...prev,
-        guess: Math.min(Math.max(prev.minGuess, newGuess), prev.maxGuess)
-      }));
+      updateGuess(initialGuess.current + deltaPointerPos / scalingFactor);
     }
   };
 
@@ -178,11 +208,12 @@ function Shape({ scalingFactor, shape, setShapeValues, answerPercentage, hasSubm
     <div
       className="shape"
       onPointerDown={ handlePointerDown }
+      onClick={(e: React.MouseEvent<HTMLDivElement>) => { e.stopPropagation() }}
       style={ getShapeStyle(shape, scalingFactor) }
     >
       <div
         className="guess-fill"
-        ref={guessRef}
+        ref={guessBoxRef}
         style={{
           width: shape.isVertical ? "100%" : shape.guess * scalingFactor,
           height: shape.isVertical ? shape.guess * scalingFactor : "100%"
@@ -208,6 +239,13 @@ type ButtonProps = {
 
 function Button({ onClick, hasSubmitted }: ButtonProps) {
   return (
-    <button onClick={onClick}>{hasSubmitted ? "next" : "submit"}</button>
+    <button
+      onClick={(e: React.PointerEvent<HTMLButtonElement>) => {
+        e.stopPropagation();
+        onClick(e);
+      }}
+    >
+      {hasSubmitted ? "next" : "submit"}
+    </button>
   );
 }
