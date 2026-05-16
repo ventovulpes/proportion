@@ -1,4 +1,6 @@
 .app {
+    background-color: var(--bg);
+    color: var(--text);
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -30,7 +32,7 @@
 }
 
 .fraction-bottom {
-    border-top: 2px solid black;
+    border-top: 2px solid var(--text);
     margin: 0;
 }
 
@@ -50,14 +52,14 @@
 }
 
 .shape {
-    border: 3px solid black;
+    border: 3px solid var(--text);
     position: relative;
     overflow: hidden;
     box-sizing: content-box;
 }
 
 .guess-fill {
-    background-color: #878787;
+    background-color: var(--fill);
     position: absolute;
     bottom: 0px;
 }

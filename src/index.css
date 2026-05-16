@@ -5,11 +5,32 @@
   touch-action: none;
 }
 
+:root {
+    --bg: #f8f8f2;
+    --text: black;
+    --fill: #878787;
+    --highlight: white;
+    --shadow: black;
+}
+
+.dark {
+    --bg: #1E1E1E;
+    --text: white;
+    --fill: #53535b;
+    --highlight: black;
+    --shadow: black;
+}
+
 body {
-    background-color: #f8f8f2;
+    margin: 0px;
     font-size: 24px;
     overflow: hidden;
     font-family: 'Times New Roman', Times, serif;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
 }
 
 h1 {
@@ -17,22 +38,42 @@ h1 {
     font-size: clamp(1rem, 6vh, 2.5rem);
 }
 
-button {
+.dark-mode-button {
+    all: unset;
+    font-size: clamp(1rem, 6vh, 2.5rem);
+    aspect-ratio: 1;
+    text-align: center;
+}
+
+.dark-mode-button-icon {
+    transition: 0.1s ease;
+}
+
+.dark-mode-button:hover .dark-mode-button-icon {
+    transform: scale(1.1);
+}
+
+.dark-mode-button:active .dark-mode-button-icon {
+    transform: scale(0.5);
+}
+
+.game button {
     flex: 0 0 auto;
     all: unset;
     padding: 8px;
-    border: 2px solid black;
+    border: 2px solid var(--text);
     border-radius: 3px;
-    box-shadow: 3px 3px 0 rgb(0, 0, 0);
-    background-color: white;
+    box-shadow: 3px 3px 0 var(--shadow);
+    background-color: var(--highlight);
+    transition: 0.1s ease;
 }
 
-button:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: 4px 4px 0 black;
+.game button:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 var(--shadow);
 }
 
-button:active {
+.game button:active {
     transform: translate(3px, 3px);
     box-shadow: none;
 }
