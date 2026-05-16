@@ -6,7 +6,9 @@
     height: 100vh;
     width: 100%;
     margin: 0px;
-    padding: 20px;
+    padding-inline: 20px;
+    padding-top: calc(env(safe-area-inset-top) + 20px);
+    padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
 }
 
 .game {
