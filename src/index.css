@@ -21,11 +21,22 @@
     --shadow: black;
 }
 
+html,
 body {
+  background-color: var(--bg);
+}
+
+body {
+    overscroll-behavior: none;
     margin: 0px;
     font-size: 24px;
     overflow: hidden;
     font-family: 'Times New Roman', Times, serif;
+}
+
+img {
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
 }
 
 .header {

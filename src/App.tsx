@@ -1,6 +1,6 @@
 import "./App.css"
 import Game from "./game.tsx"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function App() {
   const [isInDarkMode, setIsInDarkMode] = useState(false);
@@ -8,6 +8,18 @@ export default function App() {
   const toggleDarkMode = () => {
     setIsInDarkMode(d => !d);
   }
+
+  useEffect(() => {
+    const metaThemeColor = document.querySelector("meta[name='bg-color']");
+
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute(
+        "content",
+        isInDarkMode ? "#1E1E1E" : "#f8f8f2"
+      );
+    }
+  }, [isInDarkMode]);
+
   return (
     <div className={isInDarkMode ? "app dark" : "app"}>
       <Header isInDarkMode={isInDarkMode} toggleDarkMode={toggleDarkMode} />
