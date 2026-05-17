@@ -17,7 +17,6 @@ export default function App() {
     const metaThemeColor = document.querySelector("meta[name='theme-color']");
 
     if (metaThemeColor) {
-      console.log("change")
       metaThemeColor.setAttribute(
         "content",
         isInDarkMode ? "#1E1E1E" : "#f8f8f2"

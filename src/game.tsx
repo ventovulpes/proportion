@@ -109,7 +109,16 @@ type ResultProps = {
 }
 
 function Result({ answerPercentage, guessPercentage, hasSubmitted }: ResultProps) {
-  const result = `${guessPercentage - answerPercentage >= 0 ? '+' : '-'} ${(Math.abs(guessPercentage - answerPercentage) * 100).toFixed(1)}%`
+  let result: string;
+
+  const percentageOff = (Math.abs(guessPercentage - answerPercentage) * 100).toFixed(1);
+  
+  if (percentageOff === '0.0') {
+    result = "perfect!";
+  } else {
+    result = `${guessPercentage - answerPercentage >= 0 ? '+' : '-'} ${percentageOff}%`
+  }
+
   return (
     <div className="result">
       {hasSubmitted ? result : ""}
