@@ -6,19 +6,19 @@
 }
 
 :root {
-    --bg: #f8f8f2;
+    --bg: #f7f1e4;
     --text: black;
-    --fill: #878787;
+    --fill: #9f9f9f;
     --highlight: white;
     --shadow: black;
 }
 
 :root[data-theme="dark"] {
-    --bg: #1E1E1E;
-    --text: #f8f8f2;
-    --fill: #53535b;
+    --bg: #121212;
+    --text: #f7f1e4;
+    --fill: #4b545d;
     --highlight: black;
-    --shadow: black;
+    --shadow: #f7f1e4;
 }
 
 html {
@@ -68,7 +68,7 @@ h1 {
     transform: scale(0.5);
 }
 
-.game button {
+.button {
     flex: 0 0 auto;
     all: unset;
     padding: 8px;
@@ -79,12 +79,12 @@ h1 {
     transition: 0.1s ease;
 }
 
-.game button:hover {
+.button:hover {
     transform: translate(-2px, -2px);
     box-shadow: 5px 5px 0 var(--shadow);
 }
 
-.game button:active {
+.button:active {
     transform: translate(3px, 3px);
     box-shadow: none;
 }
