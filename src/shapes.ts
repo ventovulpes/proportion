@@ -16,8 +16,15 @@ type Shape = Rectangle;
 
 function createRectangle(): Rectangle {
   const isVertical = Math.random() < 0.5;
-  const width = Math.round(Math.random() * 800 + 200);
-  const height = Math.round(Math.random() * 800 + 200);
+  let width: number, height: number;
+
+  if (isVertical) {
+    width = Math.round(Math.random() * 800 + 200);
+    height = Math.round(Math.random() * 600 + 400);
+  } else {
+    width = Math.round(Math.random() * 600 + 400);
+    height = Math.round(Math.random() * 800 + 200);
+  }
 
   return {
     type: "rectangle",
