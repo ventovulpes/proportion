@@ -15,14 +15,14 @@ export default function Game() {
   }
 
   function createRandomPrompt() {
-    let denominator = Math.floor(Math.random() * 18) + 2;
-    let numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
+    let denominator = Math.floor(Math.random() * 19) + 2;
+    let numerator = Math.floor(Math.random() * 19) + 2;
 
     // get gcd using Euclidean algorithm
     const gcd = (a: number, b: number): number => b === 0 ? a : gcd(b, a % b);
 
     // check if fraction can be reduced using gcd. if so, generate new fraction
-    while (gcd(numerator, denominator) > 1) {
+    while (numerator >= denominator || gcd(numerator, denominator) > 1) {
       denominator = Math.floor(Math.random() * 18) + 2;
       numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
     }
