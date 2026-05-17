@@ -256,7 +256,9 @@ function Button({ onClick, hasSubmitted }: ButtonProps) {
         onClick(e);
       }}
     >
-      {hasSubmitted ? "next" : "submit"}
+      <div className="button-inner">
+        {hasSubmitted ? "next" : "submit"}
+      </div>
     </button>
   );
 }

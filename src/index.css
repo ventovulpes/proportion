@@ -69,8 +69,11 @@ h1 {
 }
 
 .button {
-    flex: 0 0 auto;
     all: unset;
+}
+
+.button-inner {
+    flex: 0 0 auto;
     padding: 8px;
     border: 2px solid var(--text);
     border-radius: 3px;
@@ -79,12 +82,12 @@ h1 {
     transition: 0.1s ease;
 }
 
-.button:hover {
+.button-inner:hover {
     transform: translate(-2px, -2px);
     box-shadow: 5px 5px 0 var(--shadow);
 }
 
-.button:active {
+.button-inner:active {
     transform: translate(3px, 3px);
     box-shadow: none;
 }
