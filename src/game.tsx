@@ -250,6 +250,7 @@ type ButtonProps = {
 function Button({ onClick, hasSubmitted }: ButtonProps) {
   return (
     <button
+      className="button"
       onClick={(e: React.PointerEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         onClick(e);
