@@ -57,12 +57,14 @@
     position: relative;
     overflow: hidden;
     box-sizing: content-box;
+    transition: .3s cubic-bezier(.13,.25,.48,.89);
 }
 
 .guess-fill {
     background-color: var(--fill);
     position: absolute;
     bottom: 0px;
+    transition: none;
 }
 
 .answer-fill {
