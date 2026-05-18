@@ -65,7 +65,7 @@
 
 .result {
     flex: 0 0 auto;
-    min-height: 4.6em;
+    min-height: 5em;
     text-align: center;
     line-height: 0.2em;
 }
