@@ -7,9 +7,9 @@ const ratings = [
 ]
 
 function scoreToRating(score: number): {label: string, color: string} {
-  const rating = ratings.find(range => score >= range.min && score < range.max);
-  if (!rating){
-    return undefined;
+  let rating = ratings.find(range => score >= range.min && score < range.max);
+  if (!rating) {
+    rating = { min: 0, max: 0, label: "miss"}
   }
   return { label: (rating.label === "perfect" ? "perfect!" : rating.label), color: `var(--${rating.label}-rating)` };
 }
