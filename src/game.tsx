@@ -3,14 +3,18 @@ import { type Shape, createRectangle, getShapeStyle, getGuessPercentage, getAnsw
 import { scoreToRating, scoreContinuesStreak, PRECISION, roundToPrecision } from "./scoring";
 const GAME_DIMENSIONS = { x: 1000, y: 1000 }
 
-export default function Game({isShowingStats}) {
+type GameProps = {
+  isShowingStats: boolean
+}
+
+export default function Game({isShowingStats}: GameProps) {
   const SHAPE_GENERATORS = [createRectangle];
   const [shape, setShapeValues] = useState<Shape>(createRandomInitialShapeValues);
   const [prompt, setPrompt] = useState(createRandomPrompt);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [streak, setStreak] = useState(0);
   const [longestStreak, setLongestStreak] = useState(0);
-  const [bestScore, setBestScore] = useState(null);
+  const [bestScore, setBestScore] = useState<null | number>(null);
   const gameScreenRef = useRef<null | HTMLDivElement>(null);
 
   function createRandomInitialShapeValues() {

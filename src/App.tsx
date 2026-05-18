@@ -58,7 +58,12 @@ function Buttons({ isInDarkMode, toggleDarkMode, isShowingStats, toggleIsShowing
   )
 }
 
-function HeaderButton({ text, onClick}) {
+type HeaderButtonProps = {
+  text: string,
+  onClick: () => void
+}
+
+function HeaderButton({ text, onClick }: HeaderButtonProps) {
   return (
     <button className="header-button" onClick={onClick}>
       <div className="header-button-icon">
