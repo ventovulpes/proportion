@@ -136,9 +136,9 @@ type StatsProps = {
 function Stats({ streak, longestStreak, bestScore }: StatsProps) {
   return (
     <div className="stats">
-      <p>{ `current streak: ${streak}` }</p>
-      <p>{ `longest streak: ${longestStreak}` }</p>
-      <p>{ `best score: ${bestScore ? bestScore.toFixed(PRECISION - 2) : "-"}%`}</p>
+      <p>{ `current: ${streak}` }</p>
+      <p>{ `longest: ${longestStreak}` }</p>
+      <p>{ `best: ${bestScore ? bestScore.toFixed(PRECISION - 2) : "-"}%`}</p>
     </div>
   )
 }
