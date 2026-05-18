@@ -27,6 +27,7 @@
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
+    gap: 6px;
 }
 
 .game-top .game-center {
@@ -60,6 +61,7 @@
     line-height: 1.2em;
     text-align: end;
     padding-right: 10px;
+    font-size: clamp(10px, 4.5vw, 24px);
 }
 
 .result {
