@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react"
 import { type Shape, createRectangle, getShapeStyle, getGuessPercentage, getAnswerFillStyle } from "./shapes";
+import { scoreToRating, scoreContinuesStreak, PRECISION, roundToPrecision } from "./scoring";
 const GAME_DIMENSIONS = { x: 1000, y: 1000 }
 
 export default function Game() {
@@ -7,6 +8,7 @@ export default function Game() {
   const [shape, setShapeValues] = useState<Shape>(createRandomInitialShapeValues);
   const [prompt, setPrompt] = useState(createRandomPrompt);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [streak, setStreak] = useState(0);
   const gameScreenRef = useRef<null | HTMLDivElement>(null);
 
   function createRandomInitialShapeValues() {
@@ -29,9 +31,11 @@ export default function Game() {
     return {
       numerator: numerator,
       denominator: denominator,
-      percentage: Math.round((numerator / denominator) * 1000) / 1000
+      percentage: roundToPrecision(numerator / denominator)
     };
   }
+
+  console.log(prompt.percentage, getGuessPercentage(shape))
 
   const handleSubmit = () => {
     const newGuessPercentage = getGuessPercentage(shape);
@@ -40,6 +44,12 @@ export default function Game() {
       guessPercentage: newGuessPercentage
     }));
     setHasSubmitted(true);
+
+    if (scoreContinuesStreak(Math.abs(newGuessPercentage - prompt.percentage) * 100)) {
+      setStreak(prev => prev + 1);
+    } else {
+      setStreak(0);
+    }
   };
 
   const handleNext = () => {
@@ -57,15 +67,15 @@ export default function Game() {
     // change guess by 0.1% of height/width (smallest possible increment)
     if (shape.isVertical) {
       if (e.clientY < (gameScreenRef.current.getBoundingClientRect().height / 2) + gameScreenRef.current.getBoundingClientRect().top) {
-        newGuess += 0.001 * shape.height;
+        newGuess += roundToPrecision(10**(-PRECISION) * shape.height);
       } else {
-        newGuess -= 0.001 * shape.height;
+        newGuess -= roundToPrecision(10**(-PRECISION) * shape.height);
       }
     } else {
       if (e.clientX > gameScreenRef.current.getBoundingClientRect().width / 2) {
-        newGuess += 0.001 * shape.width;
+        newGuess += roundToPrecision(10**(-PRECISION) * shape.width);
       } else {
-        newGuess -= 0.001 * shape.width;
+        newGuess -= roundToPrecision(10**(-PRECISION) * shape.width);
       }
     }
 
@@ -78,7 +88,7 @@ export default function Game() {
   return (
     <div className="game" onClick={handleGameScreenClick} ref={gameScreenRef}>
       <Fraction prompt={prompt} />
-      <Result answerPercentage={prompt.percentage} guessPercentage={shape.guessPercentage} hasSubmitted={hasSubmitted} />
+      <Result answerPercentage={prompt.percentage} guessPercentage={shape.guessPercentage} hasSubmitted={hasSubmitted} streak={streak} />
       <ShapeArea shape={shape} setShapeValues={setShapeValues} answerPercentage={prompt.percentage} hasSubmitted={hasSubmitted}/>
       <Button onClick={hasSubmitted ? handleNext : handleSubmit} hasSubmitted={hasSubmitted} />
     </div>
@@ -105,23 +115,20 @@ function Fraction({ prompt }: FractionProps) {
 type ResultProps = {
   answerPercentage: number,
   guessPercentage: number,
-  hasSubmitted: boolean
+  hasSubmitted: boolean,
+  streak: number
 }
 
-function Result({ answerPercentage, guessPercentage, hasSubmitted }: ResultProps) {
-  let result: string;
-
-  const percentageOff = (Math.abs(guessPercentage - answerPercentage) * 100).toFixed(1);
-  
-  if (percentageOff === '0.0') {
-    result = "perfect!";
-  } else {
-    result = `${guessPercentage - answerPercentage >= 0 ? '+' : '-'} ${percentageOff}%`
-  }
+function Result({ answerPercentage, guessPercentage, hasSubmitted, streak }: ResultProps) {
+  const percentageOff = (Math.abs(guessPercentage - answerPercentage) * 100).toFixed(PRECISION - 2);
+  const resultString = `${guessPercentage - answerPercentage >= 0 ? '+' : '-'} ${percentageOff}%`;
+  const rating = scoreToRating(Number(percentageOff));
 
   return (
     <div className="result">
-      {hasSubmitted ? result : ""}
+      <p>{streak > 0 ? `streak: ${streak}` : ""}</p>
+      <p><b>{hasSubmitted ? resultString : ""}</b></p>
+      <p style={{color: rating.color}}>{hasSubmitted ? rating.label : ""}</p>
     </div>
   )
 }
@@ -233,7 +240,7 @@ function Shape({ scalingFactor, shape, setShapeValues, answerPercentage, hasSubm
         className="answer-fill"
         style={{
           ...(hasSubmitted ? getAnswerFillStyle(shape, answerPercentage) : ''),
-          backgroundColor: (hasSubmitted && Math.abs(shape.guessPercentage - answerPercentage) >= 0.001)
+          backgroundColor: (hasSubmitted && Math.abs(shape.guessPercentage - answerPercentage) >= 10**(-PRECISION))
             ? (shape.guessPercentage > answerPercentage ? 'rgba(255, 34, 0, 0.5)' : 'rgba(32, 220, 82, 0.5)')
             : undefined
         }}

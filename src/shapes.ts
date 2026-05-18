@@ -1,3 +1,5 @@
+import { PRECISION } from "./scoring.ts";
+
 type BaseShape = {
   isVertical: boolean,
   guess: number,
@@ -67,7 +69,7 @@ function getShapeStyle(shape: Shape, scalingFactor: number): React.CSSProperties
 }
 
 function getGuessPercentage(shape: Shape): number {
-  return Math.round((getShapeAreaToLine(shape, shape.guess) / getTotalShapeArea(shape)) * 1000) / 1000;
+  return Math.round((getShapeAreaToLine(shape, shape.guess) / getTotalShapeArea(shape)) * 10**PRECISION) / 10**PRECISION;
 }
 
 function getAnswerFillStyle(shape: Shape, percentage: number): React.CSSProperties {

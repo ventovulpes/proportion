@@ -11,6 +11,12 @@
     --fill: #9f9f9f;
     --highlight: white;
     --shadow: black;
+
+    --perfect-rating: #e421e4;
+    --excellent-rating: #00c8ff;
+    --good-rating: #12d216;
+    --okay-rating: #cba81b;
+    --miss-rating: var(--text);
 }
 
 :root[data-theme="dark"] {
@@ -19,6 +25,12 @@
     --fill: #4b545d;
     --highlight: black;
     --shadow: #f7f1e4;
+
+    --perfect-rating: #ff7ffe;
+    --excellent-rating: #7fffff;
+    --good-rating: #7eff80;
+    --okay-rating: #feff7f;
+    --miss-rating: var(--text);
 }
 
 html {
@@ -45,7 +57,7 @@ img {
 
 h1 {
     margin: 0px;
-    font-size: clamp(1rem, 6vh, 2.5rem);
+    font-size: clamp(1rem, 4vh, 2.5rem);
 }
 
 .dark-mode-button {

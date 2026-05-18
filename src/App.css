@@ -39,8 +39,9 @@
 
 .result {
     flex: 0 0 auto;
-    font-weight: bold;
-    min-height: 1.5em;
+    min-height: 4.6em;
+    text-align: center;
+    line-height: 0.2em;
 }
 
 .shape-area {
