@@ -3,12 +3,14 @@ import { type Shape, createRectangle, getShapeStyle, getGuessPercentage, getAnsw
 import { scoreToRating, scoreContinuesStreak, PRECISION, roundToPrecision } from "./scoring";
 const GAME_DIMENSIONS = { x: 1000, y: 1000 }
 
-export default function Game() {
+export default function Game({isShowingStats}) {
   const SHAPE_GENERATORS = [createRectangle];
   const [shape, setShapeValues] = useState<Shape>(createRandomInitialShapeValues);
   const [prompt, setPrompt] = useState(createRandomPrompt);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [streak, setStreak] = useState(0);
+  const [longestStreak, setLongestStreak] = useState(0);
+  const [bestScore, setBestScore] = useState(null);
   const gameScreenRef = useRef<null | HTMLDivElement>(null);
 
   function createRandomInitialShapeValues() {
@@ -35,8 +37,6 @@ export default function Game() {
     };
   }
 
-  console.log(prompt.percentage, getGuessPercentage(shape))
-
   const handleSubmit = () => {
     const newGuessPercentage = getGuessPercentage(shape);
     setShapeValues(prev => ({
@@ -45,10 +45,16 @@ export default function Game() {
     }));
     setHasSubmitted(true);
 
-    if (scoreContinuesStreak(Math.abs(newGuessPercentage - prompt.percentage) * 100)) {
-      setStreak(prev => prev + 1);
+    const percentDifference = (newGuessPercentage - prompt.percentage) * 100;
+    if (scoreContinuesStreak(Math.abs(percentDifference))) {
+      const newStreak = streak + 1;
+      setStreak(newStreak);
+      setLongestStreak(Math.max(longestStreak, newStreak));
     } else {
       setStreak(0);
+    }
+    if (Math.abs(percentDifference) < Math.abs(bestScore ? bestScore : 100.01)) {
+      setBestScore(percentDifference);
     }
   };
 
@@ -87,8 +93,13 @@ export default function Game() {
 
   return (
     <div className="game" onClick={handleGameScreenClick} ref={gameScreenRef}>
-      <Fraction prompt={prompt} />
-      <Result answerPercentage={prompt.percentage} guessPercentage={shape.guessPercentage} hasSubmitted={hasSubmitted} streak={streak} />
+      <div className="game-top">
+        <div className="game-center">
+          <Fraction prompt={prompt} />
+          <Result answerPercentage={prompt.percentage} guessPercentage={shape.guessPercentage} hasSubmitted={hasSubmitted} />
+        </div>
+        {isShowingStats ? <Stats streak={streak} longestStreak={longestStreak} bestScore={bestScore} /> : ""}
+      </div>
       <ShapeArea shape={shape} setShapeValues={setShapeValues} answerPercentage={prompt.percentage} hasSubmitted={hasSubmitted}/>
       <Button onClick={hasSubmitted ? handleNext : handleSubmit} hasSubmitted={hasSubmitted} />
     </div>
@@ -112,21 +123,35 @@ function Fraction({ prompt }: FractionProps) {
   );
 }
 
+type StatsProps = {
+  streak: number,
+  longestStreak: number,
+  bestScore: number | null
+}
+
+function Stats({ streak, longestStreak, bestScore }: StatsProps) {
+  return (
+    <div className="stats">
+      <p>{ `current streak: ${streak}` }</p>
+      <p>{ `longest streak: ${longestStreak}` }</p>
+      <p>{ `best score: ${bestScore ? bestScore.toFixed(PRECISION - 2) : "-"}%`}</p>
+    </div>
+  )
+}
+
 type ResultProps = {
   answerPercentage: number,
   guessPercentage: number,
-  hasSubmitted: boolean,
-  streak: number
+  hasSubmitted: boolean
 }
 
-function Result({ answerPercentage, guessPercentage, hasSubmitted, streak }: ResultProps) {
+function Result({ answerPercentage, guessPercentage, hasSubmitted }: ResultProps) {
   const percentageOff = (Math.abs(guessPercentage - answerPercentage) * 100).toFixed(PRECISION - 2);
   const resultString = `${guessPercentage - answerPercentage >= 0 ? '+' : '-'} ${percentageOff}%`;
   const rating = scoreToRating(Number(percentageOff));
 
   return (
     <div className="result">
-      <p>{streak > 0 ? `streak: ${streak}` : ""}</p>
       <p><b>{hasSubmitted ? resultString : ""}</b></p>
       <p style={{color: rating.color}}>{hasSubmitted ? rating.label : ""}</p>
     </div>

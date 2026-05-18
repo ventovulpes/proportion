@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 
 export default function App() {
   const [isInDarkMode, setIsInDarkMode] = useState(false);
+  const [isShowingStats, setIsShowingStats] = useState(false);
 
   const toggleDarkMode = () => {
     setIsInDarkMode(d => {
@@ -26,26 +27,43 @@ export default function App() {
 
   return (
     <div className="app">
-      <Header isInDarkMode={isInDarkMode} toggleDarkMode={toggleDarkMode} />
-      <Game />
+      <Header isInDarkMode={isInDarkMode} toggleDarkMode={toggleDarkMode} isShowingStats={isShowingStats} toggleIsShowingStats={() => setIsShowingStats(prev => !prev)} />
+      <Game isShowingStats={isShowingStats}/>
    </div>
   )
 }
 
 type HeaderProps = {
   isInDarkMode: boolean,
-  toggleDarkMode: () => void
+  toggleDarkMode: () => void,
+  isShowingStats: boolean,
+  toggleIsShowingStats: () => void
 }
 
-function Header({ isInDarkMode, toggleDarkMode }: HeaderProps) {
+function Header({ isInDarkMode, toggleDarkMode, isShowingStats, toggleIsShowingStats }: HeaderProps) {
   return (
     <div className="header">
       <h1>proportion.</h1>
-      <button className="dark-mode-button" onClick={toggleDarkMode}>
-        <div className="dark-mode-button-icon">
-          {isInDarkMode ? "☼" : "☾" }
-        </div>
-      </button>
+      <Buttons isInDarkMode={isInDarkMode} toggleDarkMode={toggleDarkMode} isShowingStats={isShowingStats} toggleIsShowingStats={toggleIsShowingStats} />
     </div>
+  )
+}
+
+function Buttons({ isInDarkMode, toggleDarkMode, isShowingStats, toggleIsShowingStats }: HeaderProps) {
+  return (
+    <div className="header-buttons">
+      <HeaderButton text={isInDarkMode ? "☼" : "☾"} onClick={toggleDarkMode} />
+      <HeaderButton text={isShowingStats ? "–" : "☰"} onClick={toggleIsShowingStats} />
+    </div>
+  )
+}
+
+function HeaderButton({ text, onClick}) {
+  return (
+    <button className="header-button" onClick={onClick}>
+      <div className="header-button-icon">
+        { text }
+      </div>
+    </button>
   )
 }

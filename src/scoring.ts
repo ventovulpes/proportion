@@ -15,7 +15,6 @@ function scoreToRating(score: number): {label: string, color: string} {
 }
 
 function scoreContinuesStreak(score: number): boolean {
-  console.log(score)
   return score < ratings[ratings.length - 1].min;
 }
 
