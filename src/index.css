@@ -55,14 +55,13 @@ img {
     justify-content: space-between;
 }
 
-h1 {
+h1, .dark-mode-button {
     margin: 0px;
     font-size: clamp(1rem, 4vh, 2.5rem);
 }
 
 .dark-mode-button {
     all: unset;
-    font-size: clamp(1rem, 6vh, 2.5rem);
     aspect-ratio: 1;
     min-width: 1em;
     text-align: center;
